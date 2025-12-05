@@ -1,0 +1,106 @@
+services:
+  mongodb:
+    image: mongo:7
+    container_name: applyr-mongo
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+    volumes:
+      - mongo-data:/data/db
+    ports:
+      - "127.0.0.1:27017:27017" # Only accessible from localhost
+    networks:
+      - applyr-network
+    # NO ports exposed - only accessible via Tailscale
+
+  # backend:
+  #   build: ./backend
+  #   container_name: applyr-backend
+  #   restart: unless-stopped
+  #   environment:
+  #     NODE_ENV: production
+  #     MONGO_URI: mongodb://admin:${MONGO_PASSWORD}@mongodb:27017/applyr?authSource=admin
+  #     JWT_SECRET: ${JWT_SECRET}
+  #     OPENAI_API_KEY: ${OPENAI_API_KEY}
+  #     CLAUDE_API_KEY: ${CLAUDE_API_KEY}
+  #     N8N_WEBHOOK_URL: http://localhost:5678
+  #   volumes:
+  #     - ./backend/uploads:/app/uploads
+  #   depends_on:
+  #     - mongodb
+  #   networks:
+  #     - applyr-network
+  #   # Bind to host network so Tailscale can reach it
+  #   network_mode: host
+
+  # frontend:
+  #   build: ./frontend
+  #   container_name: applyr-frontend
+  #   restart: unless-stopped
+  #   environment:
+  #     # Frontend will connect to backend via Tailscale IP
+  #     REACT_APP_API_URL: http://100.x.x.x:5000
+  #   depends_on:
+  #     - backend
+  #   networks:
+  #     - applyr-network
+  #   # Bind to host network so Tailscale can reach it
+  #   network_mode: host
+
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: applyr-n8n
+    restart: unless-stopped
+    environment:
+      # Basic Auth (still good to have)
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=${N8N_USER}
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_PASSWORD}
+
+      # IMPORTANT: Webhook URL is public Cloudflare
+      - WEBHOOK_URL=https://webhooks.opendx.dev
+
+      # Editor URL is private Tailscale
+      - N8N_EDITOR_BASE_URL=http://${TAILSCALE_IP}:5678
+
+      # Host and Protocol
+      - N8N_HOST=0.0.0.0
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http # We use http locally, https only for webhooks
+
+      # Security
+      - N8N_SECURE_COOKIE=false # Not needed since we're on private network
+
+      # Timezone
+      - GENERIC_TIMEZONE=America/Chicago
+
+      # Execution settings
+      - EXECUTIONS_DATA_PRUNE=true
+      - EXECUTIONS_DATA_MAX_AGE=168
+    volumes:
+      - n8n-data:/home/node/.n8n
+    ports:
+      - "127.0.0.1:5678:5678" # Only localhost (Tailscale will access via host)
+    networks:
+      - applyr-network
+    # Bind to host network so both Tailscale AND Cloudflare can reach it
+    network_mode: host
+
+  # Cloudflare Tunnel - ONLY for webhooks
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: applyr-cloudflared
+    restart: unless-stopped
+    command: tunnel run
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
+    network_mode: host # Needs host network to reach localhost:5678
+
+volumes:
+  mongo-data:
+  n8n-data:
+
+networks:
+  applyr-network:
+    driver: bridge
