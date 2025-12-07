@@ -1,0 +1,59 @@
+{
+  "name": "applyr",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "AI-powered job application management system",
+  "scripts": {
+    "dev": "pnpm run --parallel --filter './apps/*' dev",
+    "dev:api": "pnpm --filter @applyr/api dev",
+    "dev:web": "pnpm --filter @applyr/web dev",
+    "dev:ext": "pnpm --filter @applyr/extension dev",
+    "build": "pnpm --filter @applyr/shared build && pnpm run --filter './apps/*' build",
+    "build:shared": "pnpm --filter @applyr/shared build",
+    "build:api": "pnpm --filter @applyr/api build",
+    "build:web": "pnpm --filter @applyr/web build",
+    "build:ext": "pnpm --filter @applyr/extension build",
+    "typecheck": "pnpm run --parallel --filter '*' typecheck",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "clean": "pnpm run --parallel --filter '*' clean && rm -rf node_modules",
+    "test": "echo \"No tests configured yet\"",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{js,jsx,json,md,yaml,yml,css,html}": [
+      "prettier --write"
+    ]
+  },
+  "keywords": [
+    "job-search",
+    "ai",
+    "automation",
+    "n8n"
+  ],
+  "author": "",
+  "license": "MIT",
+  "packageManager": "pnpm@10.17.1",
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "@typescript-eslint/eslint-plugin": "^8.48.1",
+    "@typescript-eslint/parser": "^8.48.1",
+    "eslint": "^9.39.1",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^16.5.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
+    "prettier": "^3.7.4"
+  }
+}
