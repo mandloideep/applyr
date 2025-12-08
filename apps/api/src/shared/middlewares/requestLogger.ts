@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import crypto from "crypto";
-import { logger, createRequestLogger } from "@/shared/utils/logger.js";
+import { logger, createRequestLogger } from "@/shared/utils/logger";
 
 // Extend Express Request to include requestId and logger
 declare global {

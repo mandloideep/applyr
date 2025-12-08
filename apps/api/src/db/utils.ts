@@ -1,7 +1,7 @@
 import type { Model, SortOrder } from "mongoose";
 import mongoose from "mongoose";
-import type { PaginationOptions, PaginatedResult, Pagination } from "@/shared/types/index.js";
-import { DEFAULT_PAGE, DEFAULT_LIMIT, MAX_LIMIT } from "@/config/index.js";
+import type { PaginationOptions, PaginatedResult, Pagination } from "@/shared/types/index";
+import { DEFAULT_PAGE, DEFAULT_LIMIT, MAX_LIMIT } from "@/config/index";
 
 // Mongoose 9 doesn't directly export FilterQuery, so we use the type from the module
 type FilterQuery<T> = mongoose.QueryFilter<T>;

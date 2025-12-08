@@ -13,4 +13,4 @@ export {
   touchUpdatedAt,
   softDeleteUpdate,
   restoreUpdate,
-} from "../utils.js";
+} from "../utils";

@@ -1,14 +1,14 @@
 import type { Request, Response, NextFunction, ErrorRequestHandler } from "express";
 import { ZodError, type ZodIssue } from "zod";
-import { env } from "@/config/index.js";
-import { logger } from "@/shared/utils/logger.js";
+import { env } from "@/config/index";
+import { logger } from "@/shared/utils/logger";
 import {
   ErrorCode,
   isAppError,
   isOperationalError,
   ValidationError,
   type ErrorCodeType,
-} from "@/shared/utils/errors.js";
+} from "@/shared/utils/errors";
 
 // Standard error response format
 interface ErrorResponse {

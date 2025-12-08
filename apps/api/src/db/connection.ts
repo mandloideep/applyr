@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { env } from "@/config/index.js";
+import { env } from "@/config/index";
 
 const MAX_RETRIES = 5;
 const INITIAL_RETRY_DELAY = 1000; // 1 second

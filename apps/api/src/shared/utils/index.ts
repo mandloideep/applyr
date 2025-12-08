@@ -1,5 +1,5 @@
 // Logger
-export { logger, createRequestLogger, loggerStream } from "./logger.js";
+export { logger, createRequestLogger, loggerStream } from "./logger";
 
 // Error classes and utilities
 export {
@@ -18,9 +18,9 @@ export {
   isAppError,
   isOperationalError,
   type ErrorCodeType,
-} from "./errors.js";
+} from "./errors";
 
 // Async handler wrapper
-export { asyncHandler } from "./asyncHandler.js";
+export { asyncHandler } from "./asyncHandler";
 
 // Phase 5: response helpers
