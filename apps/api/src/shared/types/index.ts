@@ -1,17 +1,9 @@
 import type { Request } from "express";
 
 // Extend Express Request type to include custom properties
+// Note: The full user type is defined in auth.middleware.ts via global Express.Request augmentation
 export interface AuthenticatedRequest extends Request {
   id?: string; // Request ID for tracing
-  user?: {
-    id: string;
-    email: string;
-    name: string;
-  };
-  session?: {
-    id: string;
-    expiresAt: Date;
-  };
 }
 
 // Pagination types

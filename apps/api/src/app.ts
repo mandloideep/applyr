@@ -1,10 +1,13 @@
 import express, { type Express, type Request, type Response } from "express";
 import helmet from "helmet";
 import cors from "cors";
-import { env, JSON_BODY_LIMIT, URL_ENCODED_LIMIT } from "@/config/index.js";
-import { getConnectionState } from "@/db/connection.js";
-import { requestLogger, errorHandler } from "@/shared/middlewares/index.js";
-import { NotFoundError } from "@/shared/utils/index.js";
+import { toNodeHandler } from "better-auth/node";
+import { env, JSON_BODY_LIMIT, URL_ENCODED_LIMIT } from "@/config/index";
+import { getConnectionState } from "@/db/connection";
+import { requestLogger, errorHandler } from "@/shared/middlewares/index";
+import { NotFoundError } from "@/shared/utils/index";
+import { getAuth } from "@/features/auth/index";
+import { v1Router } from "@/routes/v1";
 
 export const createApp = (): Express => {
   const app = express();
@@ -46,7 +49,12 @@ export const createApp = (): Express => {
     })
   );
 
-  // Body parsers
+  // Better Auth handler - MUST be before body parsers (Express 5 splat syntax)
+  app.all("/api/auth/*splat", (req, res) => {
+    toNodeHandler(getAuth())(req, res);
+  });
+
+  // Body parsers - after Better Auth handler
   app.use(express.json({ limit: JSON_BODY_LIMIT }));
   app.use(express.urlencoded({ extended: true, limit: URL_ENCODED_LIMIT }));
 
@@ -87,8 +95,8 @@ export const createApp = (): Express => {
     });
   });
 
-  // TODO: Mount API routes here (Phase 4+)
-  // app.use("/api/v1", apiRouter);
+  // API v1 routes
+  app.use("/api/v1", v1Router);
 
   // 404 handler for unmatched routes
   app.use((_req: Request, _res: Response) => {

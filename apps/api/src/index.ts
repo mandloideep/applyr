@@ -1,8 +1,9 @@
-import { env } from "@/config/index.js";
-import { connectDatabase, disconnectDatabase } from "@/db/connection.js";
-import { createApp } from "./app.js";
-import { logger } from "@/shared/utils/index.js";
-import { handleUncaughtException, handleUnhandledRejection } from "@/shared/middlewares/index.js";
+import { env } from "@/config/index";
+import { connectDatabase, disconnectDatabase } from "@/db/connection";
+import { createApp } from "./app";
+import { logger } from "@/shared/utils/index";
+import { handleUncaughtException, handleUnhandledRejection } from "@/shared/middlewares/index";
+import { initAuth } from "@/features/auth/index";
 
 // Handle uncaught exceptions and unhandled rejections
 process.on("uncaughtException", handleUncaughtException);
@@ -12,6 +13,9 @@ const startServer = async () => {
   try {
     // Connect to database first
     await connectDatabase();
+
+    // Initialize Better Auth after database is connected
+    initAuth();
 
     // Create Express app
     const app = createApp();
