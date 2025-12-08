@@ -3,12 +3,17 @@ import helmet from "helmet";
 import cors from "cors";
 import { env, JSON_BODY_LIMIT, URL_ENCODED_LIMIT } from "@/config/index.js";
 import { getConnectionState } from "@/db/connection.js";
+import { requestLogger, errorHandler } from "@/shared/middlewares/index.js";
+import { NotFoundError } from "@/shared/utils/index.js";
 
 export const createApp = (): Express => {
   const app = express();
 
   // Trust proxy for rate limiting behind reverse proxy
   app.set("trust proxy", 1);
+
+  // Request logging (adds requestId and logger to req)
+  app.use(requestLogger);
 
   // Security headers
   app.use(
@@ -45,7 +50,7 @@ export const createApp = (): Express => {
   app.use(express.json({ limit: JSON_BODY_LIMIT }));
   app.use(express.urlencoded({ extended: true, limit: URL_ENCODED_LIMIT }));
 
-  // Health check endpoint
+  // Health check endpoint (no auth required)
   app.get("/health", (_req: Request, res: Response) => {
     const dbState = getConnectionState();
 
@@ -82,16 +87,16 @@ export const createApp = (): Express => {
     });
   });
 
+  // TODO: Mount API routes here (Phase 4+)
+  // app.use("/api/v1", apiRouter);
+
   // 404 handler for unmatched routes
-  app.use((_req: Request, res: Response) => {
-    res.status(404).json({
-      success: false,
-      error: {
-        code: "NOT_FOUND",
-        message: "The requested resource was not found",
-      },
-    });
+  app.use((_req: Request, _res: Response) => {
+    throw new NotFoundError("Route");
   });
+
+  // Global error handler (must be last)
+  app.use(errorHandler);
 
   return app;
 };

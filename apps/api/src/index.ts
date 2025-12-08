@@ -1,6 +1,12 @@
 import { env } from "@/config/index.js";
 import { connectDatabase, disconnectDatabase } from "@/db/connection.js";
 import { createApp } from "./app.js";
+import { logger } from "@/shared/utils/index.js";
+import { handleUncaughtException, handleUnhandledRejection } from "@/shared/middlewares/index.js";
+
+// Handle uncaught exceptions and unhandled rejections
+process.on("uncaughtException", handleUncaughtException);
+process.on("unhandledRejection", handleUnhandledRejection);
 
 const startServer = async () => {
   try {
@@ -12,16 +18,16 @@ const startServer = async () => {
 
     // Start server
     const server = app.listen(env.PORT, () => {
-      console.log(`Server running on port ${env.PORT} in ${env.NODE_ENV} mode`);
+      logger.info(`Server running on port ${env.PORT} in ${env.NODE_ENV} mode`);
     });
 
     // Graceful shutdown handling
     const shutdown = async (signal: string) => {
-      console.log(`${signal} received. Shutting down gracefully...`);
+      logger.info(`${signal} received. Shutting down gracefully...`);
 
       // Close server first (stop accepting new connections)
       server.close(async () => {
-        console.log("Server closed");
+        logger.info("Server closed");
 
         // Then disconnect from database
         await disconnectDatabase();
@@ -31,7 +37,7 @@ const startServer = async () => {
 
       // Force close after 10 seconds
       setTimeout(() => {
-        console.error("Could not close connections in time, forcefully shutting down");
+        logger.error("Could not close connections in time, forcefully shutting down");
         process.exit(1);
       }, 10000);
     };
@@ -39,7 +45,7 @@ const startServer = async () => {
     process.on("SIGTERM", () => shutdown("SIGTERM"));
     process.on("SIGINT", () => shutdown("SIGINT"));
   } catch (error) {
-    console.error("Failed to start server:", error);
+    logger.error("Failed to start server", { error });
     process.exit(1);
   }
 };
