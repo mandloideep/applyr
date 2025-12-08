@@ -29,11 +29,10 @@ services:
       BETTER_AUTH_URL: http://localhost:5677
       CORS_ORIGINS: http://localhost:3000,http://localhost:5173
       LOG_LEVEL: debug
+      RESEND_API_KEY: ${RESEND_API_KEY}
     volumes:
-      - ./apps/api:/app/apps/api
-      - ./packages/shared:/app/packages/shared
-      - /app/node_modules
-      - /app/apps/api/node_modules
+      - ./apps/api/src:/app/apps/api/src
+      - ./packages/shared/src:/app/packages/shared/src
     ports:
       - "5677:5677"
     depends_on:
